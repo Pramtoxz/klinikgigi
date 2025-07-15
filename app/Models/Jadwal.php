@@ -9,7 +9,7 @@ class Jadwal extends Model
     protected $table            = 'jadwal';
     protected $primaryKey       = 'idjadwal';
     protected $protectFields    = true;
-    protected $allowedFields    = ['idjadwal', 'iddokter', 'hari', 'jam'];
+    protected $allowedFields    = ['idjadwal', 'iddokter', 'hari', 'jam', 'waktu_mulai', 'waktu_selesai', 'is_active'];
 
     // Dates
     protected $useTimestamps = true;

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Dokter as DokterModel;
 use App\Models\UserModel;
 use CodeIgniter\RESTful\ResourceController;
+use Hermawan\DataTables\DataTable;
 
 class DokterController extends ResourceController
 {
@@ -21,10 +22,54 @@ class DokterController extends ResourceController
     {
         $data = [
             'title' => 'Data Dokter',
-            'dokter' => $this->dokterModel->findAll()
         ];
         
         return view('dokter/index', $data);
+    }
+    
+    public function getDataTables()
+    {
+        $db = db_connect();
+        $builder = $db->table('dokter');
+        
+        return DataTable::of($builder)
+            ->addNumbering('no')
+            ->add('action', function($row){
+                return '
+                <div class="d-flex">
+                    <a href="'.site_url('dokter/'.$row->id_dokter).'" class="btn btn-info btn-sm me-1">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="'.site_url('dokter/'.$row->id_dokter.'/edit').'" class="btn btn-warning btn-sm me-1">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="'.$row->id_dokter.'">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                ';
+            })
+            ->format('tgllahir', function($value){
+                return date('d/m/Y', strtotime($value));
+            })
+            ->format('jenkel', function($value){
+                return ($value == 'L') ? 'Laki-laki' : 'Perempuan';
+            })
+            ->filter(function ($builder, $request) {
+                if ($request->order) {
+                    foreach ($request->order as $order) {
+                        // Jika kolom yang diurutkan adalah 'no' (index 0), gunakan id_dokter sebagai gantinya
+                        if ($request->columns[$order['column']]['data'] == 'no') {
+                            $builder->orderBy('id_dokter', $order['dir']);
+                        } else {
+                            $builder->orderBy($request->columns[$order['column']]['data'], $order['dir']);
+                        }
+                    }
+                } else {
+                    $builder->orderBy('id_dokter', 'asc');
+                }
+            })
+            ->toJson(true);
     }
     
     public function show($id_dokter = null)

@@ -74,11 +74,30 @@
                             </div>
                             
                             <div class="col-md-4">
-                                <label for="jam">Jam Praktek</label>
+                                <label for="waktu_mulai">Waktu Mulai</label>
                             </div>
                             <div class="col-md-8 form-group">
-                                <input type="text" id="jam" class="form-control" name="jam" placeholder="Contoh: 08:00 - 12:00" required>
-                                <small class="text-muted">Format: HH:MM - HH:MM</small>
+                                <input type="time" id="waktu_mulai" class="form-control" name="waktu_mulai" required>
+                                <small class="text-muted">Format: HH:MM (24 jam)</small>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="waktu_selesai">Waktu Selesai</label>
+                            </div>
+                            <div class="col-md-8 form-group">
+                                <input type="time" id="waktu_selesai" class="form-control" name="waktu_selesai" required>
+                                <small class="text-muted">Format: HH:MM (24 jam)</small>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="is_active">Status</label>
+                            </div>
+                            <div class="col-md-8 form-group">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" checked>
+                                    <label class="form-check-label" for="is_active">Aktif</label>
+                                </div>
+                                <small class="text-muted">Jadwal akan muncul di booking online jika status aktif</small>
                             </div>
                             
                             <div class="col-12 d-flex justify-content-end">

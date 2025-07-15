@@ -1,73 +1,54 @@
 <?= $this->extend('layouts/app') ?>
 
-<?= $this->section('styles') ?>
-<link rel="stylesheet" href="<?= base_url('assets/vendors/simple-datatables/style.css') ?>">
-
-<?= $this->endSection() ?>
-
 <?= $this->section('content') ?>
+<!-- isi konten Start -->
 <div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Data Dokter</h3>
+                <p class="text-subtitle text-muted">Kelola data dokter klinik</p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="<?= site_url('admin') ?>">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dokter</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
     <section class="section">
         <div class="card">
             <div class="card-header">
                 <div class="d-flex justify-content-between">
-                    <h5>Daftar Dokter</h5>
+                    <h5 class="card-title">Daftar Dokter</h5>
                     <a href="<?= site_url('dokter/new') ?>" class="btn btn-primary rounded-pill">
-                        <i class="bi bi-plus"></i> Tambah
+                        <i class="bi bi-plus"></i> Tambah Dokter
                     </a>
                 </div>
             </div>
-            <div class="card-body">
-                <table class="table table-striped" id="table-dokter">
-                    <thead>
-                        <tr>
-                            <th>ID Dokter</th>
-                            <th>Nama</th>
-                            <th>Jenis Kelamin</th>
-                            <th>Tanggal Lahir</th>
-                            <th>Nomor HP</th>
-                            <th>Akun</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($dokter as $d): ?>
-                        <tr>
-                            <td><?= $d['id_dokter'] ?></td>
-                            <td><?= $d['nama'] ?></td>
-                            <td><?= $d['jenkel'] == 'L' ? 'Laki-laki' : 'Perempuan' ?></td>
-                            <td><?= date('d/m/Y', strtotime($d['tgllahir'])) ?></td>
-                            <td><?= $d['nohp'] ?></td>
-                            <td>
-                                <?php if ($d['iduser']): ?>
-                                    <span class="badge bg-success">Terdaftar</span>
-                                <?php else: ?>
-                                    <span class="badge bg-warning">Belum Ada</span>
-                                    <i class="bi bi-key-fill btn-user-add ms-1" 
-                                       data-bs-toggle="modal" 
-                                       data-bs-target="#modalAddUser"
-                                       data-id="<?= $d['id_dokter'] ?>"
-                                       data-nama="<?= $d['nama'] ?>"
-                                       title="Buat Akun User"></i>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <div class="d-flex">
-                                    <a href="<?= site_url('dokter/' . $d['id_dokter']) ?>" class="btn btn-info btn-sm me-1">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a href="<?= site_url('dokter/' . $d['id_dokter'] . '/edit') ?>" class="btn btn-warning btn-sm me-1">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <button class="btn btn-danger btn-sm btn-delete" data-id="<?= $d['id_dokter'] ?>">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="card-body">                
+                <div class="table-responsive datatable-minimal mt-12">
+                    <table class="table table-hover" id="table-dokter">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>ID Dokter</th>
+                                <th>Nama</th>
+                                <th>Jenis Kelamin</th>
+                                <th>Tanggal Lahir</th>
+                                <th>Nomor HP</th>
+                                <th>Akun</th>
+                                <th class="no-sort">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded via DataTables -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </section>
@@ -79,17 +60,10 @@
         <div class="modal-content">
             <div class="modal-header bg-primary">
                 <h5 class="modal-title white" id="modalAddUserTitle">Buat Akun User untuk Dokter</h5>
-                <button type="button" class="close rounded-pill" data-bs-dismiss="modal" aria-label="Close">
-                    <i data-feather="x"></i>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="formAddUser">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Nama Dokter</label>
-                        <input type="text" class="form-control" id="nama-dokter" readonly>
-                        <input type="hidden" id="id-dokter" name="id_dokter">
-                    </div>
                     <div class="form-group">
                         <label>Username</label>
                         <input type="text" class="form-control" name="username" required>
@@ -107,119 +81,184 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light-secondary rounded-pill" data-bs-dismiss="modal">
-                        <i class="bx bx-x d-block d-sm-none"></i>
-                        <span class="d-none d-sm-block">Batal</span>
+                    <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+                        Batal
                     </button>
-                    <button type="submit" class="btn btn-primary rounded-pill ml-1">
-                        <i class="bx bx-check d-block d-sm-none"></i>
-                        <span class="d-none d-sm-block">Simpan</span>
+                    <button type="submit" class="btn btn-primary">
+                        Simpan
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+<!-- isi konten end -->
 <?= $this->endSection() ?>
 
 <?= $this->section('javascript') ?>
-<script src="<?= base_url('assets/vendors/simple-datatables/simple-datatables.js') ?>"></script>
 <script>
-    // Simple Datatable
-    let tableDokter = document.querySelector('#table-dokter');
-    let dataTable = new simpleDatatables.DataTable(tableDokter);
+$(document).ready(function() {
+    // Menampilkan flash message jika ada
+    <?php if (session()->getFlashdata('message')) : ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: '<?= session()->getFlashdata('message') ?>',
+        });
+    <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('error')) : ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '<?= session()->getFlashdata('error') ?>',
+        });
+    <?php endif; ?>
+
+    // Initialize DataTable
+    $('#table-dokter').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "<?= site_url('dokter/datatables') ?>",
+        order: [[1, 'asc']],
+        columns: [
+            {data: 'no', orderable: false},
+            {data: 'id_dokter'},
+            {data: 'nama'},
+            {data: 'jenkel'},
+            {data: 'tgllahir'},
+            {data: 'nohp'},
+            {
+                data: null,
+                render: function(data, type, row) {
+                    if (row.iduser) {
+                        return '<span class="badge bg-success">Terdaftar</span>';
+                    } else {
+                        return '<span class="badge bg-warning">Belum Ada</span> ' +
+                            '<i class="bi bi-key-fill btn-user-add" ' +
+                            'data-bs-toggle="modal" ' +
+                            'data-bs-target="#modalAddUser" ' +
+                            'data-id="' + row.id_dokter + '" ' +
+                            'data-nama="' + row.nama + '" ' +
+                            'style="cursor: pointer;" ' +
+                            'title="Buat Akun User"></i>';
+                    }
+                }
+            },
+            {
+                data: 'action',
+                orderable: false,
+                className: 'text-center'
+            }
+        ],
+        columnDefs: [
+            {
+                targets: [0, 7],
+                className: 'text-center',
+                orderable: false
+            },
+            {
+                targets: 'no-sort',
+                orderable: false
+            }
+        ]
+    });
 
     // Modal Add User
-    const modalAddUser = document.getElementById('modalAddUser');
-    modalAddUser.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const id = button.getAttribute('data-id');
-        const nama = button.getAttribute('data-nama');
+    $(document).on('click', '.btn-user-add', function() {
+        const id = $(this).data('id');
+        const nama = $(this).data('nama');
         
-        document.getElementById('id-dokter').value = id;
-        document.getElementById('nama-dokter').value = nama;
+        $('#id-dokter').val(id);
+        $('#nama-dokter').val(nama);
+        
+        // Reset form dan validasi
+        $('#formAddUser').trigger('reset');
+        $('.is-invalid').removeClass('is-invalid');
     });
 
     // Form Add User
-    const formAddUser = document.getElementById('formAddUser');
-    formAddUser.addEventListener('submit', function(e) {
+    $('#formAddUser').on('submit', function(e) {
         e.preventDefault();
         
-        const formData = new FormData(formAddUser);
-        const id = document.getElementById('id-dokter').value;
+        const formData = new FormData(this);
+        const id = $('#id-dokter').val();
         
-        fetch(`<?= site_url('dokter') ?>/${id}/create-user`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                Swal.fire({
-                    title: 'Sukses!',
-                    text: data.message,
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.reload();
-                });
-            } else {
-                if (data.errors) {
-                    // Tampilkan error validasi
-                    if (data.errors.username) {
-                        document.querySelector('[name="username"]').classList.add('is-invalid');
-                        document.getElementById('error-username').textContent = data.errors.username;
-                    }
-                    if (data.errors.email) {
-                        document.querySelector('[name="email"]').classList.add('is-invalid');
-                        document.getElementById('error-email').textContent = data.errors.email;
-                    }
-                    if (data.errors.password) {
-                        document.querySelector('[name="password"]').classList.add('is-invalid');
-                        document.getElementById('error-password').textContent = data.errors.password;
-                    }
-                } else {
+        $.ajax({
+            url: "<?= site_url('dokter') ?>/" + id + "/create-user",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function(data) {
+                if (data.status === 'success') {
+                    $('#modalAddUser').modal('hide');
                     Swal.fire({
-                        title: 'Error!',
-                        text: data.message || 'Terjadi kesalahan saat membuat akun user',
-                        icon: 'error',
+                        title: 'Sukses!',
+                        text: data.message,
+                        icon: 'success',
                         confirmButtonText: 'OK'
+                    }).then(() => {
+                        $('#table-dokter').DataTable().ajax.reload();
                     });
+                } else {
+                    if (data.errors) {
+                        // Tampilkan error validasi
+                        if (data.errors.username) {
+                            $('[name="username"]').addClass('is-invalid');
+                            $('#error-username').text(data.errors.username);
+                        }
+                        if (data.errors.email) {
+                            $('[name="email"]').addClass('is-invalid');
+                            $('#error-email').text(data.errors.email);
+                        }
+                        if (data.errors.password) {
+                            $('[name="password"]').addClass('is-invalid');
+                            $('#error-password').text(data.errors.password);
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message || 'Terjadi kesalahan saat membuat akun user',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan pada server',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                title: 'Error!',
-                text: 'Terjadi kesalahan pada server',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
         });
     });
 
     // Delete Dokter
-    document.querySelectorAll('.btn-delete').forEach(button => {
-        button.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            
-            Swal.fire({
-                title: 'Konfirmasi Hapus',
-                text: 'Anda yakin ingin menghapus data dokter ini?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ya, Hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`<?= site_url('dokter') ?>/${id}/delete`, {
-                        method: 'DELETE'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
+    $(document).on('click', '.btn-delete', function() {
+        const id = $(this).data('id');
+        
+        Swal.fire({
+            title: 'Konfirmasi Hapus',
+            text: 'Anda yakin ingin menghapus data dokter ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "<?= site_url('dokter') ?>/" + id + "/delete",
+                    type: "DELETE",
+                    dataType: "json",
+                    success: function(data) {
                         if (data.status === 'success') {
                             Swal.fire({
                                 title: 'Sukses!',
@@ -227,7 +266,7 @@
                                 icon: 'success',
                                 confirmButtonText: 'OK'
                             }).then(() => {
-                                window.location.reload();
+                                $('#table-dokter').DataTable().ajax.reload();
                             });
                         } else {
                             Swal.fire({
@@ -237,8 +276,8 @@
                                 confirmButtonText: 'OK'
                             });
                         }
-                    })
-                    .catch(error => {
+                    },
+                    error: function(xhr, status, error) {
                         console.error('Error:', error);
                         Swal.fire({
                             title: 'Error!',
@@ -246,18 +285,11 @@
                             icon: 'error',
                             confirmButtonText: 'OK'
                         });
-                    });
-                }
-            });
+                    }
+                });
+            }
         });
     });
-
-    // Reset form ketika modal ditutup
-    modalAddUser.addEventListener('hidden.bs.modal', function () {
-        formAddUser.reset();
-        document.querySelectorAll('.is-invalid').forEach(field => {
-            field.classList.remove('is-invalid');
-        });
-    });
+});
 </script>
 <?= $this->endSection() ?>

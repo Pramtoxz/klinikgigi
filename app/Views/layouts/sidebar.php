@@ -60,6 +60,21 @@ $uri2 = $uri[1] ?? '';
                     </a>
                 </li>
 
+                <li class="sidebar-title">Transaksi</li>
+
+                <li class="sidebar-item <?= ($uri1 == 'booking') ? 'active' : '' ?>">
+                    <a href="<?= site_url('booking') ?>" class='sidebar-link'>
+                        <i class="bi bi-calendar-date-fill"></i>
+                        <span>Booking</span>
+                    </a>
+                </li>
+                <li class="sidebar-item <?= ($uri1 == 'perawatan') ? 'active' : '' ?>">
+                    <a href="<?= site_url('perawatan') ?>" class='sidebar-link'>
+                    <i class="bi bi-heart-pulse-fill"></i>
+                        <span>Perawatan</span>
+                    </a>
+                </li>
+
                 <li class="sidebar-title">Pengaturan</li>
 
                 <li class="sidebar-item <?= ($uri1 == 'admin' && $uri2 == 'profile') ? 'active' : '' ?>">
@@ -68,6 +83,7 @@ $uri2 = $uri[1] ?? '';
                         <span>Profil Saya</span>
                     </a>
                 </li>
+
 
                 <li class="sidebar-item <?= ($uri1 == 'admin' && $uri2 == 'settings') ? 'active' : '' ?>">
                     <a href="<?= site_url('admin/settings') ?>" class='sidebar-link'>

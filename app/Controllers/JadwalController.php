@@ -24,7 +24,7 @@ class JadwalController extends ResourceController
         $builder->select('jadwal.*, dokter.nama as nama_dokter');
         $builder->join('dokter', 'dokter.id_dokter = jadwal.iddokter');
         $builder->orderBy('jadwal.hari', 'ASC');
-        $builder->orderBy('jadwal.jam', 'ASC');
+        $builder->orderBy('jadwal.waktu_mulai', 'ASC');
         
         $data = [
             'title' => 'Jadwal Praktek Dokter',
@@ -97,10 +97,17 @@ class JadwalController extends ResourceController
                     'required' => 'Hari harus dipilih'
                 ]
             ],
-            'jam' => [
+            'waktu_mulai' => [
                 'rules' => 'required',
                 'errors' => [
-                    'required' => 'Jam praktek harus diisi'
+                    'required' => 'Waktu mulai harus diisi'
+                ]
+            ],
+            'waktu_selesai' => [
+                'rules' => 'required|greater_than_equal_to[waktu_mulai]',
+                'errors' => [
+                    'required' => 'Waktu selesai harus diisi',
+                    'greater_than_equal_to' => 'Waktu selesai harus lebih besar atau sama dengan waktu mulai'
                 ]
             ]
         ];
@@ -113,7 +120,9 @@ class JadwalController extends ResourceController
             'idjadwal' => $this->request->getPost('idjadwal'),
             'iddokter' => $this->request->getPost('id_dokter'),
             'hari' => $this->request->getPost('hari'),
-            'jam' => $this->request->getPost('jam')
+            'waktu_mulai' => $this->request->getPost('waktu_mulai'),
+            'waktu_selesai' => $this->request->getPost('waktu_selesai'),
+            'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
         
         $this->jadwalModel->insert($data);
@@ -161,10 +170,17 @@ class JadwalController extends ResourceController
                     'required' => 'Hari harus dipilih'
                 ]
             ],
-            'jam' => [
+            'waktu_mulai' => [
                 'rules' => 'required',
                 'errors' => [
-                    'required' => 'Jam praktek harus diisi'
+                    'required' => 'Waktu mulai harus diisi'
+                ]
+            ],
+            'waktu_selesai' => [
+                'rules' => 'required|greater_than_equal_to[waktu_mulai]',
+                'errors' => [
+                    'required' => 'Waktu selesai harus diisi',
+                    'greater_than_equal_to' => 'Waktu selesai harus lebih besar atau sama dengan waktu mulai'
                 ]
             ]
         ];
@@ -176,7 +192,9 @@ class JadwalController extends ResourceController
         $data = [
             'iddokter' => $this->request->getPost('id_dokter'),
             'hari' => $this->request->getPost('hari'),
-            'jam' => $this->request->getPost('jam')
+            'waktu_mulai' => $this->request->getPost('waktu_mulai'),
+            'waktu_selesai' => $this->request->getPost('waktu_selesai'),
+            'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
         
         $this->jadwalModel->update($id, $data);
@@ -200,6 +218,31 @@ class JadwalController extends ResourceController
         return $this->response->setJSON([
             'status' => 'success',
             'message' => 'Data jadwal berhasil dihapus'
+        ]);
+    }
+    
+    public function toggleActive($id = null)
+    {
+        $jadwal = $this->jadwalModel->find($id);
+        
+        if (!$jadwal) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Data jadwal tidak ditemukan'
+            ]);
+        }
+        
+        // Toggle status
+        $data = [
+            'is_active' => $jadwal['is_active'] ? 0 : 1
+        ];
+        
+        $this->jadwalModel->update($id, $data);
+        
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Status jadwal berhasil diubah',
+            'is_active' => $data['is_active']
         ]);
     }
 } 

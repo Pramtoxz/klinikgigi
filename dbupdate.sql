@@ -46,18 +46,21 @@ DROP TABLE IF EXISTS `jadwal`;
 CREATE TABLE `jadwal` (
   `idjadwal` char(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `hari` varchar(50) NOT NULL,
-  `jam` time NOT NULL,
+  `waktu_mulai` time NOT NULL,
+  `waktu_selesai` time DEFAULT NULL,
   `iddokter` char(30) NOT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`idjadwal`,`hari`,`jam`,`iddokter`)
+  PRIMARY KEY (`idjadwal`,`hari`,`waktu_mulai`,`iddokter`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `jadwal` */
 
-insert  into `jadwal`(`idjadwal`,`hari`,`jam`,`iddokter`,`created_at`,`updated_at`,`deleted_at`) values 
-('JD0001','Senin','08:00:00','DK0001','2025-07-15 15:50:18','2025-07-15 15:50:18',NULL);
+insert  into `jadwal`(`idjadwal`,`hari`,`waktu_mulai`,`waktu_selesai`,`iddokter`,`is_active`,`created_at`,`updated_at`,`deleted_at`) values 
+('JD0001','Selasa','08:00:00',NULL,'DK0001',NULL,'2025-07-15 15:53:53','2025-07-15 15:53:53',NULL),
+('JD0002','Senin','23:00:00',NULL,'DK0001',NULL,'2025-07-15 16:27:55','2025-07-15 16:27:55',NULL);
 
 /*Table structure for table `migrations` */
 
@@ -129,8 +132,10 @@ CREATE TABLE `pasien` (
 /*Data for the table `pasien` */
 
 insert  into `pasien`(`id_pasien`,`nama`,`alamat`,`tgllahir`,`nohp`,`jenkel`,`iduser`,`created_at`,`updated_at`,`deleted_at`) values 
-('P0001','Pramudito Metra','Jl. Padang','2025-07-03','08129323923','L',3,'2025-07-03 06:30:48','2025-07-03 06:30:48',NULL),
-('P0002','Cimul','ss','2025-07-09','081234256734','P',5,'2025-07-09 02:20:38','2025-07-15 14:32:09',NULL);
+('PS0001','Pramudito Metra','Jl. Padang','2025-07-03','08129323923','L',3,'2025-07-03 06:30:48','2025-07-03 06:30:48',NULL),
+('PS0002','Cimul','ss','2025-07-09','081234256734','P',5,'2025-07-09 02:20:38','2025-07-15 14:32:09',NULL),
+('PS0003','Tari','asdasd','2025-07-15','08743557687','L',NULL,'2025-07-15 16:16:54','2025-07-15 16:16:54',NULL),
+('PS0004','Agus Saputra','asdasd','2025-07-15','06754343212','L',NULL,'2025-07-15 16:25:30','2025-07-15 16:25:30',NULL);
 
 /*Table structure for table `users` */
 
@@ -156,7 +161,7 @@ CREATE TABLE `users` (
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`username`,`email`,`password`,`role`,`status`,`last_login`,`remember_token`,`created_at`,`updated_at`,`deleted_at`) values 
-(1,'admin','admin@example.com','$2y$10$hI1mC1S1wh2sz1NqPDgDl.I.ZM9sjbmqm4aiFI6lzzB7XgOvZgnhe','admin','active','2025-07-15 13:35:44',NULL,'2025-06-14 21:50:56','2025-06-14 21:50:56',NULL),
+(1,'balqis','admin@example.com','$2y$10$hI1mC1S1wh2sz1NqPDgDl.I.ZM9sjbmqm4aiFI6lzzB7XgOvZgnhe','admin','active','2025-07-15 13:35:44',NULL,'2025-06-14 21:50:56','2025-06-14 21:50:56',NULL),
 (3,'pramudito','pramuditometra@gmail.com','$2y$10$/sKJ3nocDTaEBZwfqWvNj.H08jfcrWSolaA7F6buM7Tq2hYdwg.cK','user','active','2025-06-14 22:14:59',NULL,'2025-06-14 22:14:50','2025-06-14 22:14:50',NULL),
 (4,'boss','bossrentalpadang@gmail.com','$2y$10$x1Sb65DdkNNlpU02EiOHcuP.YW1BbF29e4HB8LD14jMqbnV8k4vpG','user','active',NULL,NULL,'2025-06-14 22:20:22','2025-06-14 22:20:22',NULL),
 (5,'cimul','srimulyarni2@gmail.com','$2y$10$qLdPOp12x6mohcK9q3FG1.5l/pymdxPRhOVTSuf7PWKDHjuiEZ6Fm','user','active','2025-06-14 22:46:26',NULL,'2025-06-14 22:45:35','2025-06-14 22:45:35',NULL),
@@ -164,7 +169,7 @@ insert  into `users`(`id`,`username`,`email`,`password`,`role`,`status`,`last_lo
 (8,'prarram','prararm@gmail.com','$2y$10$Oa66DQC76UttSvugCcqxFeYM0yRC/1cp9dyQwKPQAHeA/KLepSE8.','user','active',NULL,NULL,'2025-06-23 19:36:13','2025-06-23 19:36:13',NULL),
 (9,'Rindiani','rindianir573@gmail.com','$2y$10$iF4y9bw3chbQ//818ZYDkuX4JsjHLCqdgP39YZPFRR.oFueUc7vNq','user','active','2025-06-28 10:42:11',NULL,'2025-06-28 10:30:11','2025-06-28 10:30:11',NULL),
 (10,'akademis','03xa8cfygp@cross.edu.pl','$2y$10$XDoOZvMEUQ424rV4VXBkhOlbc52IVwTwTJpqzSp5ItkOmk/hmE9ZC','user','active','2025-07-03 07:22:37',NULL,'2025-07-03 07:22:22','2025-07-03 07:22:22',NULL),
-(11,'balqis','putrialifianoerbalqis@gmail.com','$2y$10$LDX08rQsEptfP1g/fp5kGuHBL70c99FOjCJeD0d6RvRm3sxQwR9hW','user','active','2025-07-03 14:27:34',NULL,'2025-07-03 14:26:15','2025-07-03 14:26:15',NULL);
+(11,'balqisa','putrialifianoerbalqis@gmail.com','$2y$10$LDX08rQsEptfP1g/fp5kGuHBL70c99FOjCJeD0d6RvRm3sxQwR9hW','user','active','2025-07-03 14:27:34',NULL,'2025-07-03 14:26:15','2025-07-03 14:26:15',NULL);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

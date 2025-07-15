@@ -39,7 +39,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="id_pasien">ID Pasien</label>
-                                <input type="text" class="form-control" id="id_pasien" name="id_pasien" value="<?= $next_id ?>" readonly>
+                                <input type="text" class="form-control" id="id_pasien" name="id_pasien" value="<?= $next_number ?>" readonly>
                                 <small class="text-muted">ID Pasien otomatis dibuat oleh sistem</small>
                             </div>
 

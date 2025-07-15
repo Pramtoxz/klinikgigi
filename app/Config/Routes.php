@@ -64,6 +64,7 @@ $routes->group('admin', function ($routes) {
 // Pasien Routes
 $routes->group('pasien', function ($routes) {
     $routes->get('/', 'PasienController::index');
+    $routes->get('datatables', 'PasienController::getDataTables');
     $routes->get('new', 'PasienController::new');
     $routes->post('/', 'PasienController::create');
     $routes->get('(:segment)', 'PasienController::show/$1');
@@ -77,6 +78,7 @@ $routes->group('pasien', function ($routes) {
 // Dokter Routes
 $routes->group('dokter', function ($routes) {
     $routes->get('/', 'DokterController::index');
+    $routes->get('datatables', 'DokterController::getDataTables');
     $routes->get('new', 'DokterController::new');
     $routes->post('/', 'DokterController::create');
     $routes->get('(:segment)', 'DokterController::show/$1');
@@ -95,6 +97,7 @@ $routes->group('jadwal', function ($routes) {
     $routes->get('(:segment)/edit', 'JadwalController::edit/$1');
     $routes->put('(:segment)', 'JadwalController::update/$1');
     $routes->delete('(:segment)/delete', 'JadwalController::delete/$1');
+    $routes->post('(:segment)/toggleActive', 'JadwalController::toggleActive/$1');
 });
 
 /**

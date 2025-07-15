@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Pasien as PasienModel;
 use App\Models\UserModel;
 use CodeIgniter\RESTful\ResourceController;
+use Hermawan\DataTables\DataTable;
 
 class PasienController extends ResourceController
 {
@@ -21,10 +22,54 @@ class PasienController extends ResourceController
     {
         $data = [
             'title' => 'Data Pasien',
-            'pasien' => $this->pasienModel->findAll()
         ];
         
         return view('pasien/index', $data);
+    }
+    
+    public function getDataTables()
+    {
+        $db = db_connect();
+        $builder = $db->table('pasien');
+        
+        return DataTable::of($builder)
+            ->addNumbering('no')
+            ->add('action', function($row){
+                return '
+                <div class="d-flex">
+                    <a href="'.site_url('pasien/'.$row->id_pasien).'" class="btn btn-info btn-sm me-1">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="'.site_url('pasien/'.$row->id_pasien.'/edit').'" class="btn btn-warning btn-sm me-1">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="'.$row->id_pasien.'">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                ';
+            })
+            ->format('tgllahir', function($value){
+                return date('d/m/Y', strtotime($value));
+            })
+            ->format('jenkel', function($value){
+                return ($value == 'L') ? 'Laki-laki' : 'Perempuan';
+            })
+            ->filter(function ($builder, $request) {
+                if ($request->order) {
+                    foreach ($request->order as $order) {
+                        // Jika kolom yang diurutkan adalah 'no' (index 0), gunakan id_pasien sebagai gantinya
+                        if ($request->columns[$order['column']]['data'] == 'no') {
+                            $builder->orderBy('id_pasien', $order['dir']);
+                        } else {
+                            $builder->orderBy($request->columns[$order['column']]['data'], $order['dir']);
+                        }
+                    }
+                } else {
+                    $builder->orderBy('id_pasien', 'asc');
+                }
+            })
+            ->toJson(true);
     }
     
     public function show($id_pasien = null)
@@ -53,7 +98,7 @@ class PasienController extends ResourceController
         
         $data = [
             'title' => 'Tambah Pasien',
-            'next_id' => $next_number,
+            'next_number' => $next_number,
             'validation' => \Config\Services::validation()
         ];
         
