@@ -2635,7 +2635,7 @@ window.tinymce.Resource.add("tinymce.plugins.emoticons", {
     fitzpatrick_scale: false,
     category: "animals_and_nature"
   },
-  hippopotamus: {
+  hippopopasiens: {
     keywords: [ "animal", "nature" ],
     "char": '<img data-emoticon="true" style="width:1em;height:1em;margin:0 .05em 0 .1em;vertical-align:-.1em" draggable="false" alt="\ud83e\udd9b" src="1f99b.png"/>',
     fitzpatrick_scale: false,

@@ -4,12 +4,12 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Tamu extends Model
+class Dokter extends Model
 {
-    protected $table            = 'tamu';
-    protected $primaryKey       = 'nik';
+    protected $table            = 'dokter';
+    protected $primaryKey       = 'id_dokter';
     protected $protectFields    = true;
-    protected $allowedFields    = ['nik', 'nama', 'alamat', 'nohp', 'jenkel','tgllahir','iduser'];
+    protected $allowedFields    = ['id_dokter', 'nama', 'alamat', 'nohp', 'jenkel','tgllahir','iduser'];
 
     // Dates
     protected $useTimestamps = true;

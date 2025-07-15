@@ -10,14 +10,9 @@ class Admin extends BaseController
     {
         $data = [
             'title' => 'Dashboard - Admin Panel',
-            'pageTitle' => 'Dashboard',
-            'pageDescription' => 'Selamat datang di Panel Admin',
-            'breadcrumb' => [
-                ['label' => 'Dashboard', 'link' => '#', 'active' => true]
-            ]
         ];
 
-        return view('admin/dashboard', $data);
+        return view('dashboard/index', $data);
     }
 
     public function users()

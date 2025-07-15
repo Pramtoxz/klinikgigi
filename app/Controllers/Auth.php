@@ -41,8 +41,8 @@ class Auth extends BaseController
         if ($rememberToken && $userId) {
             $db = db_connect();
             $user = $db->table('users')
-                ->select('users.*, tamu.nama')
-                ->join('tamu', 'tamu.iduser = users.id', 'left')
+                ->select('users.*, pasien.nama')
+                ->join('pasien', 'pasien.iduser = users.id', 'left')
                 ->where('users.id', $userId)
                 ->where('users.remember_token', $rememberToken)
                 ->where('users.status', 'active')
@@ -79,7 +79,9 @@ class Auth extends BaseController
             return $this->redirectBasedOnRole();
         }
 
-        return view('auth/login');
+        return view('auth/login', [
+            'title' => 'Login'
+        ]);
     }
     
     /**
@@ -91,7 +93,7 @@ class Auth extends BaseController
         
         if ($role === 'admin') {
             return redirect()->to(site_url('admin'));
-        } else if ($role === 'tamu') {
+        } else if ($role === 'pasien') {
             return redirect()->to(site_url('/'));
         } else {
             // Default redirect ke halaman welcome untuk role lainnya
@@ -107,8 +109,8 @@ class Auth extends BaseController
 
         $db = db_connect();
         $user = $db->table('users')
-            ->select('users.*, tamu.nama')
-            ->join('tamu', 'tamu.iduser = users.id', 'left')
+            ->select('users.*, pasien.nama')
+            ->join('pasien', 'pasien.iduser = users.id', 'left')
             ->where('users.username', $username)
             ->orWhere('users.email', $username)
             ->get()
@@ -151,7 +153,7 @@ class Auth extends BaseController
                 $redirectUrl = '';
                 if ($user['role'] === 'admin') {
                     $redirectUrl = site_url('admin');
-                } else if ($user['role'] === 'tamu') {
+                } else if ($user['role'] === 'pasien') {
                     $redirectUrl = site_url('/');
                 } else {
                     // Default redirect untuk role lainnya
@@ -236,7 +238,9 @@ class Auth extends BaseController
             return redirect()->to('admin');
         }
 
-        return view('auth/register');
+        return view('auth/register', [
+            'title' => 'Register'
+        ]);
     }
 
     public function register()
@@ -251,7 +255,8 @@ class Auth extends BaseController
 
         if (!$this->validate($rules)) {
             return view('auth/register', [
-                'validation' => $this->validator
+                'validation' => $this->validator,
+                'title' => 'Register'
             ]);
         }
 
@@ -274,7 +279,8 @@ class Auth extends BaseController
         return view('auth/verify_otp', [
             'email' => $email,
             'type' => 'register',
-            'action' => 'auth/verify-register-otp'
+            'action' => 'auth/verify-register-otp',
+            'title' => 'Verifikasi OTP'
         ]);
     }
 
@@ -320,7 +326,8 @@ class Auth extends BaseController
                 'email' => $email,
                 'type' => 'register',
                 'action' => 'auth/verify-register-otp',
-                'error' => 'Kode OTP tidak valid atau sudah kedaluarsa.'
+                'error' => 'Kode OTP tidak valid atau sudah kedaluarsa.',
+                'title' => 'Verifikasi OTP'
             ]);
         }
     }
@@ -335,7 +342,8 @@ class Auth extends BaseController
             // Validasi email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 return view('auth/forgot_password', [
-                    'error' => 'Email tidak valid'
+                    'error' => 'Email tidak valid',
+                    'title' => 'Lupa Password'
                 ]);
             }
             
@@ -344,7 +352,8 @@ class Auth extends BaseController
             
             if (!$user) {
                 return view('auth/forgot_password', [
-                    'error' => 'Email tidak terdaftar di sistem kami'
+                    'error' => 'Email tidak terdaftar di sistem kami',
+                    'title' => 'Lupa Password'
                 ]);
             }
             
@@ -356,11 +365,14 @@ class Auth extends BaseController
             return view('auth/verify_otp', [
                 'email' => $email,
                 'type' => 'forgot_password',
-                'action' => 'auth/verify-forgot-password-otp'
+                'action' => 'auth/verify-forgot-password-otp',
+                'title' => 'Verifikasi OTP'
             ]);
         }
         
-        return view('auth/forgot_password');
+        return view('auth/forgot_password', [
+            'title' => 'Lupa Password'
+        ]);
     }
 
     public function verifyForgotPasswordOTP()
@@ -377,14 +389,16 @@ class Auth extends BaseController
             session()->set('reset_password_email', $email);
             
             return view('auth/reset_password', [
-                'email' => $email
+                'email' => $email,
+                'title' => 'Reset Password'
             ]);
         } else {
             return view('auth/verify_otp', [
                 'email' => $email,
                 'type' => 'forgot_password',
                 'action' => 'auth/verify-forgot-password-otp',
-                'error' => 'Kode OTP tidak valid atau sudah kedaluarsa.'
+                'error' => 'Kode OTP tidak valid atau sudah kedaluarsa.',
+                'title' => 'Verifikasi OTP'
             ]);
         }
     }
@@ -414,7 +428,8 @@ class Auth extends BaseController
         if (!$this->validate($rules)) {
             return view('auth/reset_password', [
                 'email' => $email,
-                'validation' => $this->validator
+                'validation' => $this->validator,
+                'title' => 'Reset Password'
             ]);
         }
         

@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 use PHPSQLParser\builders\PrimaryKeyBuilder;
 
-class CreateTamuTable extends Migration
+class CreatepasienTable extends Migration
 {
     public function up()
     {
@@ -47,7 +47,7 @@ class CreateTamuTable extends Migration
             ],
         ]);
         $this->forge->addKey('nik', true);
-        $this->forge->createTable('tamu');
+        $this->forge->createTable('pasien');
         $data = [
             'nik'   => '1234567890',
             'nama'   => 'rindi',
@@ -58,11 +58,11 @@ class CreateTamuTable extends Migration
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
-        $this->db->table('tamu')->insert($data);
+        $this->db->table('pasien')->insert($data);
     }
 
     public function down()
     {
-        $this->forge->dropTable('tamu');
+        $this->forge->dropTable('pasien');
     }
 }
