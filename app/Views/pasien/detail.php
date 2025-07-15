@@ -80,6 +80,12 @@
                             <div class="col-md-8">
                                 <?php if ($pasien['iduser']): ?>
                                     <span class="badge bg-success">Terdaftar</span>
+                                    <button class="btn btn-sm btn-primary ms-2" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalUpdatePassword"
+                                            data-id="<?= $pasien['id_pasien'] ?>">
+                                        <i class="bi bi-key"></i> Ubah Password
+                                    </button>
                                 <?php else: ?>
                                     <span class="badge bg-warning">Belum Ada</span>
                                     <button class="btn btn-sm btn-primary ms-2" 
@@ -136,6 +142,41 @@
                         <label>Password</label>
                         <input type="password" class="form-control" name="password" required>
                         <div class="invalid-feedback" id="error-password"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Batal</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary ml-1">
+                        <i class="bx bx-check d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Simpan</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Update Password -->
+<div class="modal fade" id="modalUpdatePassword" tabindex="-1" role="dialog" aria-labelledby="modalUpdatePasswordTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title white" id="modalUpdatePasswordTitle">Ubah Password</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <form id="formUpdatePassword">
+                <div class="modal-body">
+                    <input type="hidden" id="password-pasien-id" name="id_pasien">
+                    <div class="form-group">
+                        <label>Password Baru</label>
+                        <input type="password" class="form-control" name="password" placeholder="Kosongkan jika tidak ingin mengubah password">
+                        <div class="invalid-feedback" id="error-update-password"></div>
+                        <small class="text-muted">Minimal 6 karakter. Kosongkan jika tidak ingin mengubah password.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -229,6 +270,73 @@
     // Reset form ketika modal ditutup
     modalAddUser.addEventListener('hidden.bs.modal', function () {
         formAddUser.reset();
+        document.querySelectorAll('.is-invalid').forEach(field => {
+            field.classList.remove('is-invalid');
+        });
+    });
+    
+    // Modal Update Password
+    const modalUpdatePassword = document.getElementById('modalUpdatePassword');
+    modalUpdatePassword.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        
+        document.getElementById('password-pasien-id').value = id;
+    });
+
+    // Form Update Password
+    const formUpdatePassword = document.getElementById('formUpdatePassword');
+    formUpdatePassword.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(formUpdatePassword);
+        const id = document.getElementById('password-pasien-id').value;
+        
+        fetch(`<?= site_url('pasien') ?>/${id}/update-password`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    title: 'Sukses!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    modalUpdatePassword.querySelector('[name="password"]').value = '';
+                    document.querySelector('[name="password"]').classList.remove('is-invalid');
+                    bootstrap.Modal.getInstance(modalUpdatePassword).hide();
+                });
+            } else {
+                if (data.errors && data.errors.password) {
+                    document.querySelector('[name="password"]').classList.add('is-invalid');
+                    document.getElementById('error-update-password').textContent = data.errors.password;
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Terjadi kesalahan saat mengubah password',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'Terjadi kesalahan pada server',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
+
+    // Reset form ketika modal ditutup
+    modalUpdatePassword.addEventListener('hidden.bs.modal', function () {
+        formUpdatePassword.reset();
         document.querySelectorAll('.is-invalid').forEach(field => {
             field.classList.remove('is-invalid');
         });

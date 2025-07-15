@@ -293,4 +293,63 @@ class PasienController extends ResourceController
             'message' => 'Akun user untuk pasien berhasil dibuat'
         ]);
     }
+    
+    public function updatePassword($id_pasien = null)
+    {
+        $pasien = $this->pasienModel->find($id_pasien);
+        
+        if (!$pasien) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Data pasien tidak ditemukan'
+            ]);
+        }
+        
+        if (!$pasien['iduser']) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Pasien belum memiliki akun user'
+            ]);
+        }
+        
+        // Validasi input
+        $rules = [
+            'password' => [
+                'rules' => 'permit_empty|min_length[6]',
+                'errors' => [
+                    'min_length' => 'Password minimal 6 karakter'
+                ]
+            ]
+        ];
+        
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'errors' => $this->validator->getErrors()
+            ]);
+        }
+        
+        $password = $this->request->getPost('password');
+        
+        // Jika password kosong, abaikan update password
+        if (empty($password)) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Tidak ada perubahan pada password'
+            ]);
+        }
+        
+        // Update password user
+        $userData = [
+            'id' => $pasien['iduser'],
+            'password' => $password
+        ];
+        
+        $this->userModel->save($userData);
+        
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Password berhasil diperbarui'
+        ]);
+    }
 } 

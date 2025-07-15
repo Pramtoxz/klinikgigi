@@ -1,0 +1,100 @@
+<?= $this->extend('layouts/app') ?>
+
+<?= $this->section('content') ?>
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Edit Jadwal</h3>
+                <p class="text-subtitle text-muted">Ubah jadwal praktek dokter</p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="<?= site_url('admin') ?>">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="<?= site_url('jadwal') ?>">Jadwal</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <section class="section">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Form Edit Jadwal</h4>
+            </div>
+            <div class="card-body">
+                <?php if (session()->getFlashdata('errors')) : ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <h4>Periksa Entrian Form</h4>
+                        <ul>
+                            <?php foreach (session()->getFlashdata('errors') as $error) : ?>
+                                <li><?= esc($error) ?></li>
+                            <?php endforeach ?>
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif ?>
+                
+                <form class="form form-horizontal" action="<?= site_url('jadwal/' . $jadwal['idjadwal']) ?>" method="post">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="_method" value="PUT">
+                    
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="idjadwal">ID Jadwal</label>
+                            </div>
+                            <div class="col-md-8 form-group">
+                                <input type="text" id="idjadwal" class="form-control" name="idjadwal" value="<?= $jadwal['idjadwal'] ?>" readonly>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="id_dokter">Dokter</label>
+                            </div>
+                            <div class="col-md-8 form-group">
+                                <select class="form-select" id="id_dokter" name="id_dokter" required>
+                                    <option value="" disabled>Pilih Dokter</option>
+                                    <?php foreach ($dokter as $row) : ?>
+                                        <option value="<?= $row['id_dokter'] ?>" <?= ($row['id_dokter'] == $jadwal['iddokter']) ? 'selected' : '' ?>>
+                                            <?= $row['nama'] ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="hari">Hari</label>
+                            </div>
+                            <div class="col-md-8 form-group">
+                                <select class="form-select" id="hari" name="hari" required>
+                                    <option value="" disabled>Pilih Hari</option>
+                                    <?php foreach ($hari as $h) : ?>
+                                        <option value="<?= $h ?>" <?= ($h == $jadwal['hari']) ? 'selected' : '' ?>>
+                                            <?= $h ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="jam">Jam Praktek</label>
+                            </div>
+                            <div class="col-md-8 form-group">
+                                <input type="text" id="jam" class="form-control" name="jam" value="<?= $jadwal['jam'] ?>" placeholder="Contoh: 08:00 - 12:00" required>
+                                <small class="text-muted">Format: HH:MM - HH:MM</small>
+                            </div>
+                            
+                            <div class="col-12 d-flex justify-content-end">
+                                <a href="<?= site_url('jadwal') ?>" class="btn btn-secondary me-1 mb-1">Batal</a>
+                                <button type="submit" class="btn btn-primary me-1 mb-1">Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+<?= $this->endSection() ?> 

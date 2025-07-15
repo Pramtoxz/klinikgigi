@@ -53,6 +53,13 @@ $uri2 = $uri[1] ?? '';
                     </a>
                 </li>
 
+                <li class="sidebar-item <?= ($uri1 == 'jadwal') ? 'active' : '' ?>">
+                    <a href="<?= site_url('jadwal') ?>" class='sidebar-link'>
+                        <i class="bi bi-calendar-date-fill"></i>
+                        <span>Jadwal Dokter</span>
+                    </a>
+                </li>
+
                 <li class="sidebar-title">Pengaturan</li>
 
                 <li class="sidebar-item <?= ($uri1 == 'admin' && $uri2 == 'profile') ? 'active' : '' ?>">

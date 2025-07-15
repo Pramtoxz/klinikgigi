@@ -45,9 +45,8 @@ class DokterController extends ResourceController
     
     public function new()
     {
-        // Generate ID dokter dengan format PS0001, PS0002, dst
         $db = db_connect();
-        $query = $db->query("SELECT CONCAT('PS', LPAD(IFNULL(MAX(SUBSTRING(id_dokter, 3)) + 1, 1), 4, '0')) AS next_number FROM dokter");
+        $query = $db->query("SELECT CONCAT('DR', LPAD(IFNULL(MAX(SUBSTRING(id_dokter, 3)) + 1, 1), 4, '0')) AS next_number FROM dokter");
         $row = $query->getRow();
         $next_number = $row->next_number;
         
@@ -291,6 +290,64 @@ class DokterController extends ResourceController
         return $this->response->setJSON([
             'status' => 'success',
             'message' => 'Akun user untuk dokter berhasil dibuat'
+        ]);
+    }
+    public function updatePassword($id_dokter = null)
+    {
+        $dokter = $this->dokterModel->find($id_dokter);
+        
+        if (!$dokter) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Data dokter tidak ditemukan'
+            ]);
+        }
+        
+        if (!$dokter['iduser']) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Dokter belum memiliki akun user'
+            ]);
+        }
+        
+        // Validasi input
+        $rules = [
+            'password' => [
+                'rules' => 'permit_empty|min_length[6]',
+                'errors' => [
+                    'min_length' => 'Password minimal 6 karakter'
+                ]
+            ]
+        ];
+        
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'errors' => $this->validator->getErrors()
+            ]);
+        }
+        
+        $password = $this->request->getPost('password');
+        
+        // Jika password kosong, abaikan update password
+        if (empty($password)) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Tidak ada perubahan pada password'
+            ]);
+        }
+        
+        // Update password user 
+        $userData = [
+            'id' => $dokter['iduser'],
+            'password' => $password
+        ];
+        
+        $this->userModel->save($userData);
+        
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Password berhasil diperbarui'
         ]);
     }
 } 

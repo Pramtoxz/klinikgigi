@@ -71,10 +71,10 @@ $routes->group('pasien', function ($routes) {
     $routes->put('(:segment)', 'PasienController::update/$1');
     $routes->delete('(:segment)/delete', 'PasienController::delete/$1');
     $routes->post('(:segment)/create-user', 'PasienController::createUser/$1');
+    $routes->post('(:segment)/update-password', 'PasienController::updatePassword/$1');
 });
 
 // Dokter Routes
-
 $routes->group('dokter', function ($routes) {
     $routes->get('/', 'DokterController::index');
     $routes->get('new', 'DokterController::new');
@@ -85,6 +85,18 @@ $routes->group('dokter', function ($routes) {
     $routes->delete('(:segment)/delete', 'DokterController::delete/$1');
     $routes->post('(:segment)/create-user', 'DokterController::createUser/$1');
 });
+
+// Jadwal Routes
+$routes->group('jadwal', function ($routes) {
+    $routes->get('/', 'JadwalController::index');
+    $routes->get('new', 'JadwalController::new');
+    $routes->post('/', 'JadwalController::create');
+    $routes->get('(:segment)', 'JadwalController::show/$1');
+    $routes->get('(:segment)/edit', 'JadwalController::edit/$1');
+    $routes->put('(:segment)', 'JadwalController::update/$1');
+    $routes->delete('(:segment)/delete', 'JadwalController::delete/$1');
+});
+
 /**
  * --------------------------------------------------------------------
  * Additional Routing

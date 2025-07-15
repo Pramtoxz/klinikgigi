@@ -13,7 +13,7 @@
                 <div class="d-flex justify-content-between">
                     <h5>Daftar Dokter</h5>
                     <a href="<?= site_url('dokter/new') ?>" class="btn btn-primary rounded-pill">
-                        <i class="bi bi-plus"></i> Tambah Dokter
+                        <i class="bi bi-plus"></i> Tambah
                     </a>
                 </div>
             </div>
