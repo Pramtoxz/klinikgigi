@@ -6,20 +6,20 @@ use CodeIgniter\Model;
 
 class OtpModel extends Model
 {
-    protected $table            = 'otp_codes';
-    protected $primaryKey       = 'id';
+    protected $table = 'otp_codes';
+    protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = ['email', 'otp_code', 'type', 'is_used', 'expires_at'];
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
+    protected $allowedFields = [
+        'email', 'otp_code', 'type', 'is_used', 'expires_at'
+    ];
 
-    // Dates
     protected $useTimestamps = true;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
+    protected $deletedField = '';
+    
     /**
      * Generate OTP untuk email tertentu dan tipe tertentu
      *
@@ -75,7 +75,7 @@ class OtpModel extends Model
             ->where('is_used', 0)
             ->where('expires_at >', $now)
             ->first();
-            
+        
         if ($otp) {
             // Tandai OTP sebagai sudah digunakan
             $this->update($otp['id'], ['is_used' => 1]);

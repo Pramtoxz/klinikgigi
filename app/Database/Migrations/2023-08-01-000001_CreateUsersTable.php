@@ -17,36 +17,36 @@ class CreateUsersTable extends Migration
             ],
             'username' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 100,
+                'constraint' => '100',
                 'unique'     => true,
             ],
             'email' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 100,
+                'constraint' => '100',
                 'unique'     => true,
             ],
             'password' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 255,
+                'constraint' => '255',
             ],
             'role' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 20,
+                'constraint' => '20',
                 'comment'    => 'admin, user, dll',
             ],
             'status' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 20,
+                'constraint' => '20',
                 'default'    => 'active',
                 'comment'    => 'active, inactive',
             ],
             'last_login' => [
-                'type'       => 'DATETIME',
-                'null'       => true,
+                'type' => 'DATETIME',
+                'null' => true,
             ],
             'remember_token' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 100,
+                'constraint' => '100',
                 'null'       => true,
             ],
             'created_at' => [
@@ -63,23 +63,13 @@ class CreateUsersTable extends Migration
             ],
         ]);
         $this->forge->addKey('id', true);
+        $this->forge->addUniqueKey('username');
+        $this->forge->addUniqueKey('email');
         $this->forge->createTable('users');
-
-        // Tambahkan admin default
-        $data = [
-            'username'   => 'admin',
-            'email'      => 'admin@example.com',
-            'password'   => password_hash('admin123', PASSWORD_DEFAULT),
-            'role'       => 'admin',
-            'status'     => 'active',
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
-        $this->db->table('users')->insert($data);
     }
 
     public function down()
     {
         $this->forge->dropTable('users');
     }
-}
+} 

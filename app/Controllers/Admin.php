@@ -26,7 +26,6 @@ class Admin extends BaseController
                 ['label' => 'Pengguna', 'link' => '#', 'active' => true]
             ]
         ];
-
         return view('admin/users', $data);
     }
 

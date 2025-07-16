@@ -85,12 +85,12 @@ class UserModel extends Model
 
         ];
     }
-
+    
     public function getValidationRules(array $options = []): array
     {
         return $this->validationRules;
     }
-
+    
     public function save($data): bool
     {
         // Jika ini adalah update, ubah validasi password menjadi opsional
@@ -100,7 +100,7 @@ class UserModel extends Model
 
         return parent::save($data);
     }
-
+    
     protected function hashPassword(array $data)
     {
         if (!isset($data['data']['password']) || empty($data['data']['password'])) {

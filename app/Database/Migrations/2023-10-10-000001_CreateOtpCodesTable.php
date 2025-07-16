@@ -44,7 +44,8 @@ class CreateOtpCodesTable extends Migration
                 'null' => true,
             ],
         ]);
-        $this->forge->addPrimaryKey('id');
+        
+        $this->forge->addKey('id', true);
         $this->forge->addKey('email');
         $this->forge->addKey('otp_code');
         $this->forge->createTable('otp_codes');

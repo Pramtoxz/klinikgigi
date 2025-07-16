@@ -100,6 +100,30 @@ $routes->group('jadwal', function ($routes) {
     $routes->post('(:segment)/toggleActive', 'JadwalController::toggleActive/$1');
 });
 
+// Obat Routes
+$routes->group('obat', function ($routes) {
+    $routes->get('/', 'ObatController::index');
+    $routes->get('datatables', 'ObatController::getDataTables');
+    $routes->get('new', 'ObatController::new');
+    $routes->post('/', 'ObatController::create');
+    $routes->get('(:segment)', 'ObatController::show/$1');
+    $routes->get('(:segment)/edit', 'ObatController::edit/$1');
+    $routes->put('(:segment)', 'ObatController::update/$1');
+    $routes->delete('(:segment)/delete', 'ObatController::delete/$1');
+});
+
+// Jenis Perawatan Routes
+$routes->group('jenis', function ($routes) {
+    $routes->get('/', 'JenisController::index');
+    $routes->get('datatables', 'JenisController::getDataTables');
+    $routes->get('new', 'JenisController::new');
+    $routes->post('/', 'JenisController::create');
+    $routes->get('(:segment)', 'JenisController::show/$1');
+    $routes->get('(:segment)/edit', 'JenisController::edit/$1');
+    $routes->put('(:segment)', 'JenisController::update/$1');
+    $routes->delete('(:segment)/delete', 'JenisController::delete/$1');
+});
+
 /**
  * --------------------------------------------------------------------
  * Additional Routing

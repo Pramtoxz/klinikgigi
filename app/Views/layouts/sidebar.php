@@ -52,11 +52,22 @@ $uri2 = $uri[1] ?? '';
                         <span>Data Pasien</span>
                     </a>
                 </li>
-
                 <li class="sidebar-item <?= ($uri1 == 'jadwal') ? 'active' : '' ?>">
                     <a href="<?= site_url('jadwal') ?>" class='sidebar-link'>
                         <i class="bi bi-calendar-date-fill"></i>
                         <span>Jadwal Dokter</span>
+                    </a>
+                </li>
+                <li class="sidebar-item <?= ($uri1 == 'jenis') ? 'active' : '' ?>">
+                    <a href="<?= site_url('jenis') ?>" class='sidebar-link'>
+                        <i class="bi bi-bookmark-plus-fill"></i>
+                        <span>Jenis Perawatan</span>
+                    </a>
+                </li>
+                <li class="sidebar-item <?= ($uri1 == 'obat') ? 'active' : '' ?>">
+                    <a href="<?= site_url('obat') ?>" class='sidebar-link'>
+                        <i class="bi bi-bag-plus-fill"></i>
+                        <span>Obat</span>
                     </a>
                 </li>
 
@@ -70,7 +81,7 @@ $uri2 = $uri[1] ?? '';
                 </li>
                 <li class="sidebar-item <?= ($uri1 == 'perawatan') ? 'active' : '' ?>">
                     <a href="<?= site_url('perawatan') ?>" class='sidebar-link'>
-                    <i class="bi bi-heart-pulse-fill"></i>
+                    <i class="fas fa-procedures"></i>
                         <span>Perawatan</span>
                     </a>
                 </li>
