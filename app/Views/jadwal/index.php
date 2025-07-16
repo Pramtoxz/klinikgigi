@@ -22,9 +22,9 @@
         <div class="card">
             <div class="card-header">
                 <div class="d-flex justify-content-between">
-                    <h5 class="card-title">Daftar Jadwal Praktek</h5>
+                    <h5 class="card-title">Kelola Jadwal Praktek</h5>
                     <a href="<?= site_url('jadwal/new') ?>" class="btn btn-primary rounded-pill">
-                        <i class="bi bi-plus"></i> Tambah Jadwal
+                        <i class="bi bi-plus"></i> Tambah
                     </a>
                 </div>
             </div>

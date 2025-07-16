@@ -58,7 +58,6 @@ class PasienController extends ResourceController
             ->filter(function ($builder, $request) {
                 if ($request->order) {
                     foreach ($request->order as $order) {
-                        // Jika kolom yang diurutkan adalah 'no' (index 0), gunakan id_pasien sebagai gantinya
                         if ($request->columns[$order['column']]['data'] == 'no') {
                             $builder->orderBy('id_pasien', $order['dir']);
                         } else {

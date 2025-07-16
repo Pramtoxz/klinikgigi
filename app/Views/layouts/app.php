@@ -13,8 +13,8 @@
     <link rel="stylesheet" href="<?= base_url('assets/vendors/iconly/bold.css') ?>">
 
     <link rel="stylesheet" href="<?= base_url('assets/vendors/perfect-scrollbar/perfect-scrollbar.css') ?>">
-    <!-- Bootstrap Icons (yang sudah ada) -->
-    <link rel="stylesheet" href="<?= base_url('assets/vendors/bootstrap-icons/bootstrap-icons.css') ?>">
+    <!-- Bootstrap Icons dari CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Font Awesome untuk ikon tambahan -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="<?= base_url('assets/css/app.css') ?>">

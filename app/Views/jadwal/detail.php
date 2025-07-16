@@ -3,21 +3,7 @@
 <?= $this->section('content') ?>
 <div class="page-heading">
     <div class="page-title">
-        <div class="row">
-            <div class="col-12 col-md-6 order-md-1 order-last">
-                <h3>Detail Jadwal</h3>
-                <p class="text-subtitle text-muted">Informasi lengkap jadwal praktek dokter</p>
-            </div>
-            <div class="col-12 col-md-6 order-md-2 order-first">
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="<?= site_url('admin') ?>">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="<?= site_url('jadwal') ?>">Jadwal</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Detail</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
+        
     </div>
     <section class="section">
         <div class="card">
@@ -60,7 +46,7 @@
                         <div class="form-group row mb-3">
                             <label class="col-md-4 col-form-label">Jam Praktek</label>
                             <div class="col-md-8">
-                                <p class="form-control-plaintext"><?= $jadwal['jam'] ?></p>
+                                <p class="form-control-plaintext"><?= $jadwal['waktu_mulai'] ?> - <?= $jadwal['waktu_selesai'] ?></p>
                             </div>
                         </div>
                     </div>
