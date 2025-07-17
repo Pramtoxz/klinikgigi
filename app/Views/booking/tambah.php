@@ -54,20 +54,11 @@
                             </div>
                             <div class="col-md-8 form-group">
                                 <input type="date" id="tanggal" class="form-control" name="tanggal" required
-                                       min="<?= date('Y-m-d') ?>">
-                                <small class="text-muted">Pilih tanggal mulai hari ini</small>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <label for="blok_waktu">Blok Waktu</label>
-                            </div>
-                            <div class="col-md-8 form-group">
-                                <select class="form-select" id="blok_waktu" name="blok_waktu" required>
-                                    <option value="" selected disabled>Pilih Blok Waktu</option>
-                                    <?php foreach ($blok_waktu as $blok) : ?>
-                                        <option value="<?= $blok ?>"><?= $blok ?> (<?= $blok == 'Pagi' ? '08:00 - 12:00' : '13:00 - 23:00' ?>)</option>
-                                    <?php endforeach; ?>
-                                </select>
+                                       min="<?= date('Y-m-d') ?>" disabled>
+                                <small class="text-muted">Pilih tanggal mulai hari ini (tanggal harus sesuai hari jadwal dokter)</small>
+                                <div id="jadwal-info" class="alert alert-light-info d-none mt-2">
+                                    <i class="bi bi-info-circle"></i> Pilih jadwal dokter terlebih dahulu
+                                </div>
                             </div>
                             
                             <div class="col-md-4">
@@ -92,14 +83,18 @@
                                     <div class="d-flex align-items-center">
                                         <i class="bi bi-info-circle-fill me-2"></i>
                                         <div>
-                                            <div>Estimasi waktu kedatangan: <span id="estimasi-waktu">-</span></div>
-                                            <div>Durasi perawatan: <span id="durasi-perawatan">-</span> menit</div>
+                                            <div><strong>Estimasi waktu kedatangan:</strong> <span id="estimasi-waktu" class="fw-bold">-</span></div>
+                                            <div><strong>Durasi perawatan:</strong> <span id="durasi-perawatan">-</span> menit</div>
                                         </div>
+                                    </div>
+                                    <div id="waktu-disesuaikan" class="mt-2 d-none alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        <span id="pesan-waktu-disesuaikan">Waktu telah disesuaikan</span>
                                     </div>
                                 </div>
                                 <div id="no-slot-message" class="d-none alert alert-light-danger">
                                     <i class="bi bi-exclamation-triangle-fill"></i>
-                                    Tidak ada slot waktu tersedia pada jadwal dan blok waktu yang dipilih
+                                    Tidak ada slot waktu tersedia pada jadwal yang dipilih
                                 </div>
                                 <button type="button" id="check-slot" class="btn btn-sm btn-info mb-2">
                                     <i class="bi bi-calendar-check"></i> Cek Ketersediaan Slot
@@ -370,7 +365,102 @@
             
             // Tutup modal
             $('#dokterModal').modal('hide');
+            
+            // Aktifkan dan reset input tanggal
+            $('#tanggal').val('').prop('disabled', false);
+            
+            // Terapkan validasi tanggal berdasarkan hari jadwal
+            setValidDatesForDay(hari);
+            
+            // Tampilkan info jadwal
+            $('#jadwal-info').removeClass('d-none').html(
+                `<i class="bi bi-info-circle"></i> Jadwal Dokter: <strong>${dokter}</strong> pada hari <strong>${hari}</strong>. Pilih tanggal yang sesuai.`
+            );
         });
+        
+        // Fungsi untuk menentukan tanggal valid berdasarkan hari
+        function setValidDatesForDay(selectedDay) {
+            const dayMap = {
+                'Senin': 1,
+                'Selasa': 2,
+                'Rabu': 3,
+                'Kamis': 4,
+                'Jumat': 5,
+                'Sabtu': 6,
+                'Minggu': 0
+            };
+            
+            const dayNumber = dayMap[selectedDay];
+            if (dayNumber === undefined) return;
+            
+            const tanggalInput = $('#tanggal');
+            
+            // Reset event handler
+            tanggalInput.off('input');
+            
+            // Tambahkan event handler baru
+            tanggalInput.on('input', function() {
+                const selectedDate = new Date($(this).val());
+                if (!selectedDate || isNaN(selectedDate.getTime())) return;
+                
+                // Cek apakah hari sesuai
+                if (selectedDate.getDay() !== dayNumber) {
+                    Swal.fire({
+                        title: 'Tanggal Tidak Sesuai',
+                        text: `Tanggal yang Anda pilih bukan hari ${selectedDay}. Silakan pilih tanggal yang jatuh pada hari ${selectedDay}.`,
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                    $(this).val(''); // Reset nilai
+                    return;
+                }
+                
+                // Cek apakah waktu sudah lewat untuk hari ini
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate.getTime() === today.getTime()) {
+                    // Jika tanggal hari ini, periksa waktu
+                    const currentTime = new Date();
+                    const waktuJadwal = $('#info_jadwal').val().match(/\(([^)]+)\)/)[1];
+                    const waktuMulai = waktuJadwal.split('-')[0].trim();
+                    
+                    // Konversi waktu jadwal ke objek Date
+                    const [hours, minutes] = waktuMulai.split(':').map(Number);
+                    const jadwalTime = new Date();
+                    jadwalTime.setHours(hours, minutes, 0, 0);
+                    
+                    // Jika waktu sekarang sudah melewati waktu jadwal
+                    if (currentTime > jadwalTime) {
+                        Swal.fire({
+                            title: 'Waktu Jadwal Sudah Lewat',
+                            text: `Jadwal dokter untuk hari ini pada pukul ${waktuMulai} sudah lewat. Silakan pilih tanggal lain.`,
+                            icon: 'warning',
+                            confirmButtonText: 'OK'
+                        });
+                        $(this).val('');
+                    }
+                }
+            });
+            
+            // Set min date ke tanggal hari ini
+            const today = new Date();
+            let minDate = new Date();
+            
+            // Tentukan tanggal berikutnya dengan hari yang cocok
+            while (minDate.getDay() !== dayNumber) {
+                minDate.setDate(minDate.getDate() + 1);
+            }
+            
+            // Set min date dan placeholder dengan tanggal valid berikutnya
+            const yyyy = minDate.getFullYear();
+            const mm = String(minDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(minDate.getDate()).padStart(2, '0');
+            const nextValidDate = `${yyyy}-${mm}-${dd}`;
+            
+            tanggalInput.attr('min', nextValidDate);
+            tanggalInput.attr('placeholder', nextValidDate);
+        }
         
         // =================================================================
         // Cek Ketersediaan Slot
@@ -379,11 +469,10 @@
         $('#check-slot').on('click', function() {
             const idjadwal = $('#idjadwal').val();
             const tanggal = $('#tanggal').val();
-            const blok_waktu = $('#blok_waktu').val();
             const idjenis = $('#idjenis').val();
             
             // Validasi input
-            if (!idjadwal || !tanggal || !blok_waktu || !idjenis) {
+            if (!idjadwal || !tanggal || !idjenis) {
                 Swal.fire({
                     title: 'Perhatian',
                     text: 'Harap isi semua field terlebih dahulu!',
@@ -391,6 +480,30 @@
                     confirmButtonText: 'OK'
                 });
                 return;
+            }
+            
+            // Validasi tambahan untuk tanggal hari ini
+            const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+            if (tanggal === today) {
+                const waktuJadwal = $('#info_jadwal').val().match(/\(([^)]+)\)/)[1];
+                const waktuMulai = waktuJadwal.split('-')[0].trim();
+                
+                // Dapatkan waktu saat ini
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                
+                // Parse waktu mulai jadwal
+                const [hour, minute] = waktuMulai.split(':').map(Number);
+                
+                // Hitung waktu dalam menit
+                const currentTimeInMinutes = currentHour * 60 + currentMinute;
+                const scheduleTimeInMinutes = hour * 60 + minute;
+                
+                // Jika waktu saat ini sudah melewati waktu jadwal
+                if (currentTimeInMinutes > scheduleTimeInMinutes) {
+                    console.log(`Current time (${currentTimeInMinutes} mins) is past schedule time (${scheduleTimeInMinutes} mins)`);
+                }
             }
             
             // Show loading
@@ -409,17 +522,19 @@
                 data: {
                     idjadwal: idjadwal,
                     tanggal: tanggal,
-                    blok_waktu: blok_waktu,
                     idjenis: idjenis
                 },
                 dataType: "json",
                 success: function(response) {
                     Swal.close();
+                    console.log('Server Response:', response); // Debug response
                     
                     if (response.status === 'success') {
                         const durasi = response.data.durasi;
                         const waktuMulai = response.data.waktu_mulai;
                         const waktuSelesai = response.data.waktu_selesai;
+                        
+                        console.log('Waktu dari server - mulai:', waktuMulai, 'selesai:', waktuSelesai);
                         
                         // Tampilkan estimasi waktu
                         $('#estimasi-waktu').text(formatTime(waktuMulai));
@@ -433,9 +548,31 @@
                         
                         // Enable submit button
                         $('#btn-submit').prop('disabled', false);
+                        
+                        // Tambahkan highlight jika tanggal hari ini dan waktu sudah disesuaikan
+                        const today = new Date().toISOString().split('T')[0];
+                        if (tanggal === today) {
+                            const jadwalInfo = $('#info_jadwal').val().match(/\(([^)]+)\)/)[1];
+                            const jadwalMulai = jadwalInfo.split('-')[0].trim();
+                            
+                            console.log('Comparing times - jadwal awal:', jadwalMulai, 'vs waktu server:', waktuMulai.substring(0, 5));
+                            
+                            if (waktuMulai.substring(0, 5) !== jadwalMulai) {
+                                // Tunjukkan pesan bahwa waktu telah disesuaikan
+                                $('#waktu-disesuaikan').removeClass('d-none');
+                                $('#pesan-waktu-disesuaikan').html(
+                                    `Waktu mulai telah disesuaikan karena jadwal asli (${jadwalMulai}) sudah lewat.`
+                                );
+                            } else {
+                                $('#waktu-disesuaikan').addClass('d-none');
+                            }
+                        } else {
+                            $('#waktu-disesuaikan').addClass('d-none');
+                        }
                     } else {
                         $('#estimasi-waktu-container').addClass('d-none');
-                        $('#no-slot-message').removeClass('d-none');
+                        $('#no-slot-message').removeClass('d-none')
+                            .html(`<i class="bi bi-exclamation-triangle-fill"></i> ${response.message}`);
                         $('#btn-submit').prop('disabled', true);
                         
                         Swal.fire({
@@ -461,7 +598,7 @@
         });
         
         // Reset estimasi waktu ketika ada perubahan pada input
-        $('#idjadwal, #tanggal, #blok_waktu, #idjenis').on('change', function() {
+        $('#idjadwal, #tanggal, #idjenis').on('change', function() {
             $('#estimasi-waktu-container').addClass('d-none');
             $('#no-slot-message').addClass('d-none');
             $('#btn-submit').prop('disabled', true);
@@ -469,8 +606,19 @@
         
         // Format waktu HH:MM:SS menjadi HH:MM
         function formatTime(timeString) {
-            const time = new Date('2000-01-01T' + timeString);
-            return time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            console.log('Formatting time:', timeString);
+            try {
+                const time = new Date('2000-01-01T' + timeString);
+                console.log('Parsed time object:', time);
+                return time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch(e) {
+                console.error('Error formatting time:', e);
+                // Fallback - parse manually
+                if (typeof timeString === 'string' && timeString.length >= 5) {
+                    return timeString.substring(0, 5); // Return HH:MM only
+                }
+                return timeString;
+            }
         }
     });
 </script>

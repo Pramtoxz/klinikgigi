@@ -10,8 +10,8 @@
             <div class="card-header">
                 <div class="d-flex justify-content-between">
                     <h5 class="card-title">Kelola Data Booking</h5>
-                    <a href="<?= site_url('booking/new') ?>" class="btn btn-primary rounded-pill">
-                        <i class="bi bi-plus"></i> Tambah Booking Offline
+                    <a href="<?= site_url('booking/new') ?>" class="btn btn-primary ">
+                        Tambah
                     </a>
                 </div>
             </div>
@@ -24,11 +24,10 @@
                                 <th>ID Booking</th>
                                 <th>Pasien</th>
                                 <th>Dokter</th>
-                                <th>Jenis Perawatan</th>
                                 <th>Tanggal</th>
                                 <th>Waktu</th>
                                 <th>Status</th>
-                                <th class="no-sort">Aksi</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -46,6 +45,13 @@
 <?= $this->section('javascript') ?>
 <script>
 $(document).ready(function() {
+    // Global error handler
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error('JavaScript Error:', message, 'at', source, ':', lineno, ':', colno);
+        console.error('Error object:', error);
+        alert('Terjadi error JavaScript. Silakan periksa konsol browser (F12) untuk detail.');
+        return false;
+    };
     // Menampilkan flash message jika ada
     <?php if (session()->getFlashdata('message')) : ?>
         Swal.fire({
@@ -68,13 +74,12 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         ajax: "<?= site_url('booking/datatables') ?>",
-        order: [[5, 'desc'], [6, 'asc']],
+        order: [],
         columns: [
-            {data: 'no', orderable: false},
+            {data: 'no'},
             {data: 'idbooking'},
             {data: 'nama_pasien'},
             {data: 'nama_dokter'},
-            {data: 'jenis_perawatan'},
             {data: 'tanggal'},
             {
                 data: null,
@@ -83,22 +88,7 @@ $(document).ready(function() {
                 }
             },
             {data: 'status'},
-            {
-                data: 'action',
-                orderable: false,
-                className: 'text-center'
-            }
-        ],
-        columnDefs: [
-            {
-                targets: [0, 8],
-                className: 'text-center',
-                orderable: false
-            },
-            {
-                targets: 'no-sort',
-                orderable: false
-            }
+            {data: 'action'}
         ]
     });
 

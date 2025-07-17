@@ -41,15 +41,17 @@ class BookingController extends ResourceController
         $db = db_connect();
         $builder = $db->table('booking')
             ->select('
-                booking.*,
+                booking.idbooking,
                 pasien.nama as nama_pasien,
                 dokter.nama as nama_dokter,
-                jenis_perawatan.namajenis as jenis_perawatan
+                booking.tanggal,
+                booking.waktu_mulai,
+                booking.waktu_selesai,
+                booking.status
             ')
             ->join('pasien', 'pasien.id_pasien = booking.id_pasien')
             ->join('jadwal', 'jadwal.idjadwal = booking.idjadwal')
-            ->join('dokter', 'dokter.id_dokter = jadwal.iddokter')
-            ->join('jenis_perawatan', 'jenis_perawatan.idjenis = booking.idjenis');
+            ->join('dokter', 'dokter.id_dokter = jadwal.iddokter');
         
         return DataTable::of($builder)
             ->addNumbering('no')
@@ -86,20 +88,6 @@ class BookingController extends ResourceController
                     return '<span class="badge bg-danger">Ditolak</span>';
                 }
                 return $value;
-            })
-            ->filter(function ($builder, $request) {
-                if ($request->order) {
-                    foreach ($request->order as $order) {
-                        if ($request->columns[$order['column']]['data'] == 'no') {
-                            $builder->orderBy('booking.idbooking', $order['dir']);
-                        } else {
-                            $builder->orderBy($request->columns[$order['column']]['data'], $order['dir']);
-                        }
-                    }
-                } else {
-                    $builder->orderBy('booking.tanggal', 'desc');
-                    $builder->orderBy('booking.waktu_mulai', 'asc');
-                }
             })
             ->toJson(true);
     }
@@ -139,7 +127,8 @@ class BookingController extends ResourceController
     {
         // Generate ID Booking dengan format BK0001, BK0002, dst
         $db = db_connect();
-        $query = $db->query("SELECT CONCAT('BK', LPAD(IFNULL(MAX(SUBSTRING(idbooking, 3)) + 1, 1), 4, '0')) AS next_number FROM booking");
+        $tanggal = date('Ymd');
+        $query = $db->query("SELECT CONCAT('BK', '$tanggal', LPAD(IFNULL(MAX(SUBSTRING(idbooking, 11)) + 1, 1), 4, '0')) AS next_number FROM booking WHERE idbooking LIKE 'BK$tanggal%'");
         $row = $query->getRow();
         $next_number = $row->next_number;
         
@@ -147,7 +136,6 @@ class BookingController extends ResourceController
             'title' => 'Tambah Booking Offline',
             'next_number' => $next_number,
             'jenis' => $this->jenisModel->findAll(),
-            'blok_waktu' => ['Pagi', 'Siang'],
             'validation' => \Config\Services::validation()
         ];
         
@@ -188,13 +176,6 @@ class BookingController extends ResourceController
                     'required' => 'Tanggal harus diisi',
                     'valid_date' => 'Format tanggal tidak valid'
                 ]
-            ],
-            'blok_waktu' => [
-                'rules' => 'required|in_list[Pagi,Siang]',
-                'errors' => [
-                    'required' => 'Blok waktu harus dipilih',
-                    'in_list' => 'Blok waktu tidak valid'
-                ]
             ]
         ];
         
@@ -204,18 +185,40 @@ class BookingController extends ResourceController
         
         $idjadwal = $this->request->getPost('idjadwal');
         $tanggal = $this->request->getPost('tanggal');
-        $blok_waktu = $this->request->getPost('blok_waktu');
         $idjenis = $this->request->getPost('idjenis');
+        
+        // Dapatkan jadwal dokter
+        $jadwal = $this->jadwalModel->find($idjadwal);
+        if (!$jadwal) {
+            return redirect()->back()->withInput()->with('error', 'Jadwal dokter tidak ditemukan');
+        }
+        
+        // Validasi apakah tanggal sesuai dengan hari jadwal dokter
+        $dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $dayOfWeek = date('w', strtotime($tanggal)); // 0 (Minggu) sampai 6 (Sabtu)
+        $dayName = $dayNames[$dayOfWeek];
+        
+        if ($dayName !== $jadwal['hari']) {
+            return redirect()->back()->withInput()->with('error', "Tanggal {$tanggal} bukan hari {$jadwal['hari']}. Silakan pilih tanggal yang sesuai.");
+        }
+        
+        // Validasi apakah waktu jadwal untuk hari ini sudah lewat
+        if ($tanggal == date('Y-m-d')) {
+            $currentTime = date('H:i:s');
+            if ($currentTime > $jadwal['waktu_mulai']) {
+                return redirect()->back()->withInput()->with('error', "Jadwal dokter untuk hari ini pada pukul " . substr($jadwal['waktu_mulai'], 0, 5) . " sudah lewat. Silakan pilih tanggal lain.");
+            }
+        }
         
         // Dapatkan durasi jenis perawatan
         $jenis = $this->jenisModel->find($idjenis);
         $durasi_menit = $jenis['estimasi'];
         
-        // Cari slot waktu yang tersedia
-        $slot = $this->bookingModel->findAvailableSlot($idjadwal, $tanggal, $blok_waktu, $durasi_menit);
+        // Cari slot waktu yang tersedia berdasarkan jadwal dokter
+        $slot = $this->bookingModel->findAvailableSlotFromSchedule($idjadwal, $tanggal, $durasi_menit);
         
         if (!$slot) {
-            return redirect()->back()->withInput()->with('error', 'Tidak ada slot waktu tersedia pada jadwal dan blok waktu yang dipilih');
+            return redirect()->back()->withInput()->with('error', 'Tidak ada slot waktu tersedia pada jadwal yang dipilih');
         }
         
         $data = [
@@ -332,21 +335,66 @@ class BookingController extends ResourceController
     {
         $idjadwal = $this->request->getGet('idjadwal');
         $tanggal = $this->request->getGet('tanggal');
-        $blok_waktu = $this->request->getGet('blok_waktu');
         $idjenis = $this->request->getGet('idjenis');
+        
+        // Log input untuk debug
+        log_message('debug', "getAvailableSlot START - jadwal: $idjadwal, tanggal: $tanggal, jenis: $idjenis");
         
         // Dapatkan jadwal
         $jadwal = $this->jadwalModel->find($idjadwal);
         if (!$jadwal) {
+            log_message('error', "Jadwal not found: $idjadwal");
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => 'Jadwal tidak ditemukan'
             ]);
         }
         
+        log_message('debug', "Jadwal found: " . json_encode($jadwal));
+        
+        // Validasi apakah tanggal sesuai dengan hari jadwal dokter
+        $dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $dayOfWeek = date('w', strtotime($tanggal)); // 0 (Minggu) sampai 6 (Sabtu)
+        $dayName = $dayNames[$dayOfWeek];
+        
+        log_message('debug', "Validating day - selected date: $tanggal (day: $dayName), schedule day: {$jadwal['hari']}");
+        
+        if ($dayName !== $jadwal['hari']) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => "Tanggal {$tanggal} bukan hari {$jadwal['hari']}. Silakan pilih tanggal yang sesuai."
+            ]);
+        }
+        
+        // Validasi apakah waktu jadwal untuk hari ini sudah lewat
+        if ($tanggal == date('Y-m-d')) {
+            $currentTime = date('H:i:s');
+            
+            // Log waktu untuk debug
+            log_message('debug', "Today's booking check - current time: $currentTime, schedule start time: {$jadwal['waktu_mulai']}, end time: {$jadwal['waktu_selesai']}");
+            
+            // Jika waktu sekarang sudah melewati jadwal dan ditambah 30 menit, tampilkan pesan
+            $timeBuffer = date('H:i:s', strtotime($currentTime) + (30 * 60));
+            log_message('debug', "Current time + buffer (30 min): $timeBuffer");
+            
+            $timeBufferTimestamp = strtotime("2000-01-01 $timeBuffer");
+            $jadwalEndTimestamp = strtotime("2000-01-01 {$jadwal['waktu_selesai']}");
+            
+            log_message('debug', "Comparing - time+buffer: $timeBufferTimestamp vs jadwal end: $jadwalEndTimestamp");
+            
+            if ($timeBufferTimestamp >= $jadwalEndTimestamp) {
+                log_message('debug', "Current time + buffer exceeds schedule end time");
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => "Tidak ada slot waktu tersedia untuk hari ini. Silakan booking untuk hari lain."
+                ]);
+            }
+        }
+        
         // Dapatkan durasi jenis perawatan
         $jenis = $this->jenisModel->find($idjenis);
         if (!$jenis) {
+            log_message('error', "Jenis not found: $idjenis");
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => 'Jenis perawatan tidak ditemukan'
@@ -354,16 +402,20 @@ class BookingController extends ResourceController
         }
         
         $durasi_menit = $jenis['estimasi'];
+        log_message('debug', "Treatment duration: $durasi_menit minutes");
         
-        // Cari slot waktu yang tersedia
-        $slot = $this->bookingModel->findAvailableSlot($idjadwal, $tanggal, $blok_waktu, $durasi_menit);
+        // Cari slot waktu yang tersedia berdasarkan jadwal dokter
+        $slot = $this->bookingModel->findAvailableSlotFromSchedule($idjadwal, $tanggal, $durasi_menit);
         
         if (!$slot) {
+            log_message('debug', "No available slot found");
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => 'Tidak ada slot waktu tersedia'
             ]);
         }
+        
+        log_message('debug', "FINAL: Found available slot: " . json_encode($slot));
         
         return $this->response->setJSON([
             'status' => 'success',
