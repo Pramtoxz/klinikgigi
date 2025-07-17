@@ -91,6 +91,7 @@ $routes->group('dokter', function ($routes) {
 // Jadwal Routes
 $routes->group('jadwal', function ($routes) {
     $routes->get('/', 'JadwalController::index');
+    $routes->get('datatables', 'JadwalController::datatables');
     $routes->get('new', 'JadwalController::new');
     $routes->post('/', 'JadwalController::create');
     $routes->get('(:segment)', 'JadwalController::show/$1');
@@ -122,6 +123,19 @@ $routes->group('jenis', function ($routes) {
     $routes->get('(:segment)/edit', 'JenisController::edit/$1');
     $routes->put('(:segment)', 'JenisController::update/$1');
     $routes->delete('(:segment)/delete', 'JenisController::delete/$1');
+});
+
+// Booking Routes
+$routes->group('booking', function ($routes) {
+    $routes->get('/', 'BookingController::index');
+    $routes->get('datatables', 'BookingController::getDataTables');
+    $routes->get('new', 'BookingController::new');
+    $routes->post('/', 'BookingController::create');
+    $routes->get('(:segment)', 'BookingController::show/$1');
+    $routes->get('(:segment)/edit', 'BookingController::edit/$1');
+    $routes->put('(:segment)', 'BookingController::update/$1');
+    $routes->delete('(:segment)/delete', 'BookingController::delete/$1');
+    $routes->get('get-available-slot', 'BookingController::getAvailableSlot');
 });
 
 /**

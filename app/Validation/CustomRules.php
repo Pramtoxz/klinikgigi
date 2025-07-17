@@ -38,4 +38,18 @@ class CustomRules
         
         return $row !== null;
     }
+
+    public function check_time_greater(string $str, string $field, array $data): bool
+    {
+        $end_time = strtotime($str);
+        $start_time = strtotime($data[$field]);
+        
+        // Jika waktu mulai atau waktu selesai kosong, kembalikan true (validasi required akan menanganinya)
+        if (empty($str) || empty($data[$field])) {
+            return true;
+        }
+        
+        // Membandingkan waktu
+        return $end_time >= $start_time;
+    }
 } 

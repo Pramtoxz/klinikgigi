@@ -34,6 +34,80 @@ class JadwalController extends ResourceController
         return view('jadwal/index', $data);
     }
     
+    public function datatables()
+    {
+        $request = $this->request->getGet();
+        $draw = $request['draw'] ?? 1;
+        $start = $request['start'] ?? 0;
+        $length = $request['length'] ?? 10;
+        $search = $request['search']['value'] ?? '';
+        
+        // Debug: Catat request yang diterima
+        log_message('debug', 'JadwalController::datatables Request: ' . json_encode($request));
+        
+        // Join dengan tabel dokter untuk mendapatkan nama dokter
+        $builder = $this->jadwalModel->builder();
+        $builder->select('jadwal.*, dokter.nama as nama_dokter');
+        $builder->join('dokter', 'dokter.id_dokter = jadwal.iddokter');
+        
+        // Filter pencarian
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('jadwal.idjadwal', $search)
+                ->orLike('dokter.nama', $search)
+                ->orLike('jadwal.hari', $search)
+                ->groupEnd();
+        }
+        
+        // Hitung total records
+        $totalRecords = $builder->countAllResults(false);
+        
+        // Ordering
+        $order = $request['order'] ?? [];
+        $columns = ['idjadwal', 'nama_dokter', 'hari', 'waktu_mulai', 'is_active'];
+        
+        if (!empty($order)) {
+            $columnIdx = intval($order[0]['column']);
+            $columnName = $columns[$columnIdx] ?? 'jadwal.hari';
+            $dir = $order[0]['dir'] ?? 'asc';
+            $builder->orderBy($columnName, $dir);
+        } else {
+            $builder->orderBy('jadwal.hari', 'ASC');
+            $builder->orderBy('jadwal.waktu_mulai', 'ASC');
+        }
+        
+        // Pagination
+        $builder->limit($length, $start);
+        
+        // Fetch data
+        $result = $builder->get()->getResultArray();
+        
+        // Format data untuk DataTables
+        $data = [];
+        foreach ($result as $row) {
+            $data[] = [
+                'idjadwal' => $row['idjadwal'],
+                'nama_dokter' => $row['nama_dokter'],
+                'hari' => $row['hari'],
+                'waktu_mulai' => $row['waktu_mulai'],
+                'waktu_selesai' => $row['waktu_selesai'],
+                'is_active' => $row['is_active'],
+            ];
+        }
+        
+        $response = [
+            'draw' => intval($draw),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $totalRecords,
+            'data' => $data
+        ];
+        
+        // Debug: Catat response yang dikembalikan
+        log_message('debug', 'JadwalController::datatables Response: ' . json_encode($response));
+        
+        return $this->response->setJSON($response);
+    }
+    
     public function show($id = null)
     {
         // Join dengan tabel dokter untuk mendapatkan nama dokter
@@ -104,10 +178,10 @@ class JadwalController extends ResourceController
                 ]
             ],
             'waktu_selesai' => [
-                'rules' => 'required|greater_than_equal_to[waktu_mulai]',
+                'rules' => 'required|check_time_greater[waktu_mulai]',
                 'errors' => [
                     'required' => 'Waktu selesai harus diisi',
-                    'greater_than_equal_to' => 'Waktu selesai harus lebih besar atau sama dengan waktu mulai'
+                    'check_time_greater' => 'Waktu selesai harus lebih besar atau sama dengan waktu mulai'
                 ]
             ]
         ];
@@ -177,10 +251,10 @@ class JadwalController extends ResourceController
                 ]
             ],
             'waktu_selesai' => [
-                'rules' => 'required|greater_than_equal_to[waktu_mulai]',
+                'rules' => 'required|check_time_greater[waktu_mulai]',
                 'errors' => [
                     'required' => 'Waktu selesai harus diisi',
-                    'greater_than_equal_to' => 'Waktu selesai harus lebih besar atau sama dengan waktu mulai'
+                    'check_time_greater' => 'Waktu selesai harus lebih besar atau sama dengan waktu mulai'
                 ]
             ]
         ];

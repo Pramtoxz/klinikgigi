@@ -66,6 +66,7 @@
                         <input type="password" class="form-control" name="password" required>
                         <div class="invalid-feedback" id="error-password"></div>
                     </div>
+                    <input type="hidden" id="id-pasien" name="id_pasien">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">

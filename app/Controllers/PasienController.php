@@ -274,6 +274,14 @@ class PasienController extends ResourceController
     
     public function createUser($id_pasien = null)
     {
+        // Pastikan id_pasien tidak null
+        if ($id_pasien === null) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'ID Pasien tidak ditemukan'
+            ]);
+        }
+        
         $pasien = $this->pasienModel->find($id_pasien);
         
         if (!$pasien) {
@@ -340,6 +348,14 @@ class PasienController extends ResourceController
     
     public function updatePassword($id_pasien = null)
     {
+        // Pastikan id_pasien tidak null
+        if ($id_pasien === null) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'ID Pasien tidak ditemukan'
+            ]);
+        }
+        
         $pasien = $this->pasienModel->find($id_pasien);
         
         if (!$pasien) {

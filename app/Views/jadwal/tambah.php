@@ -10,19 +10,7 @@
                 <h4 class="card-title">Form Tambah Jadwal</h4>
             </div>
             <div class="card-body">
-                <?php if (session()->getFlashdata('errors')) : ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <h4>Periksa Entrian Form</h4>
-                        <ul>
-                            <?php foreach (session()->getFlashdata('errors') as $error) : ?>
-                                <li><?= esc($error) ?></li>
-                            <?php endforeach ?>
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <?php endif ?>
-                
-                <form class="form form-horizontal" action="<?= site_url('jadwal') ?>" method="post">
+                <form class="form form-horizontal" action="<?= site_url('jadwal') ?>" method="post" id="form-tambah-jadwal">
                     <?= csrf_field() ?>
                     
                     <div class="form-body">
@@ -96,4 +84,42 @@
         </div>
     </section>
 </div>
+
+<?= $this->endSection() ?> 
+
+<?= $this->section('javascript') ?>
+<script>
+    $(document).ready(function() {
+        <?php if (session()->getFlashdata('errors')) : ?>
+            Swal.fire({
+                title: 'Periksa Entrian Form',
+                html: `<ul style="text-align: left;">
+                    <?php foreach (session()->getFlashdata('errors') as $error) : ?>
+                        <li><?= esc($error) ?></li>
+                    <?php endforeach ?>
+                </ul>`,
+                icon: 'error',
+                confirmButtonText: 'Baik'
+            });
+        <?php endif ?>
+        
+        // Validasi client-side untuk waktu
+        $('#form-tambah-jadwal').submit(function(e) {
+            const waktuMulai = $('#waktu_mulai').val();
+            const waktuSelesai = $('#waktu_selesai').val();
+            
+            if (waktuMulai && waktuSelesai) {
+                if (waktuSelesai < waktuMulai) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Periksa Entrian Form',
+                        text: 'Waktu selesai harus lebih besar atau sama dengan waktu mulai',
+                        icon: 'error',
+                        confirmButtonText: 'Baik'
+                    });
+                }
+            }
+        });
+    });
+</script>
 <?= $this->endSection() ?> 

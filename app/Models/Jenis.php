@@ -9,7 +9,7 @@ class Jenis extends Model
     protected $table            = 'jenis_perawatan';
     protected $primaryKey       = 'idjenis';
     protected $protectFields    = true;
-    protected $allowedFields    = ['idjenis', 'namajenis', 'estimasi', 'harga'];
+    protected $allowedFields    = ['idjenis', 'namajenis', 'estimasi', 'harga', 'keterangan'];
 
     // Dates
     protected $useTimestamps = true;
