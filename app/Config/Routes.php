@@ -116,7 +116,7 @@ $routes->group('obat', function ($routes) {
     $routes->delete('(:segment)/delete', 'ObatController::delete/$1');
 });
 
-// Jenis Perawatan Routes
+// Jenis Perawatan Gigi Routes
 $routes->group('jenis', function ($routes) {
     $routes->get('/', 'JenisController::index');
     $routes->get('datatables', 'JenisController::getDataTables');
