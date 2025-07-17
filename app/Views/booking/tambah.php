@@ -65,7 +65,7 @@
                                 <select class="form-select" id="blok_waktu" name="blok_waktu" required>
                                     <option value="" selected disabled>Pilih Blok Waktu</option>
                                     <?php foreach ($blok_waktu as $blok) : ?>
-                                        <option value="<?= $blok ?>"><?= $blok ?> (<?= $blok == 'Pagi' ? '08:00 - 12:00' : '13:00 - 17:00' ?>)</option>
+                                        <option value="<?= $blok ?>"><?= $blok ?> (<?= $blok == 'Pagi' ? '08:00 - 12:00' : '13:00 - 23:00' ?>)</option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -404,7 +404,7 @@
             
             // Cek ketersediaan slot
             $.ajax({
-                url: "<?= site_url('booking/get-available-slot') ?>",
+                url: "<?= site_url('get-available-slot') ?>",
                 type: "GET",
                 data: {
                     idjadwal: idjadwal,

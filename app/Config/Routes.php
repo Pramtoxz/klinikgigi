@@ -32,6 +32,9 @@ $routes->setAutoRoute(false);
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
 
+// API Endpoint untuk cek slot waktu yang tersedia
+$routes->get('get-available-slot', 'BookingController::getAvailableSlot');
+
 // Auth Routes
 $routes->group('auth', function ($routes) {
     $routes->get('/', 'Auth::index');
@@ -135,7 +138,6 @@ $routes->group('booking', function ($routes) {
     $routes->get('(:segment)/edit', 'BookingController::edit/$1');
     $routes->put('(:segment)', 'BookingController::update/$1');
     $routes->delete('(:segment)/delete', 'BookingController::delete/$1');
-    $routes->get('get-available-slot', 'BookingController::getAvailableSlot');
 });
 
 /**
